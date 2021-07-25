@@ -7,6 +7,12 @@ export type Plant = {
   weight: number;
 };
 
+export type PlantWithNoID = {
+  name: string;
+  type: string;
+  weight: number;
+};
+
 export class RarePlantStore {
   async index(): Promise<Plant[]> {
     try {
@@ -32,7 +38,7 @@ export class RarePlantStore {
     }
   }
 
-  async create(p: Plant): Promise<Plant> {
+  async create(p: PlantWithNoID): Promise<Plant> {
     try {
       const sql =
         "INSERT INTO rare_plants (name, type, weight) VALUES ($1, $2, $3) RETURNING *";
