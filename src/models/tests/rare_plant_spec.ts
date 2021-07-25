@@ -9,6 +9,7 @@ describe("Rare Plant Model", () => {
 
   it("index method should return a list of plants", async () => {
     const result = await store.index();
+    console.log(result);
     expect(result).toEqual([]);
   });
 });
