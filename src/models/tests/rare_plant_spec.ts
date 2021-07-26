@@ -1,4 +1,5 @@
 import { Plant, RarePlantStore } from "../rare_plant";
+//import client from "../../database";
 
 const store = new RarePlantStore();
 
@@ -60,5 +61,11 @@ describe("Rare Plant Model", () => {
     store.delete(1);
     const result = await store.index();
     expect(result).toEqual([]);
+    /*
+    const conn = await client.connect();
+    const sql = "TRUNCATE TABLE rare_plants RESTART IDENTITY";
+    const deleteAll = await conn.query(sql);
+    conn.release();
+    */
   });
 });
