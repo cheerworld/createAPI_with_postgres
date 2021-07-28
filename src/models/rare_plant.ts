@@ -1,13 +1,7 @@
 import client from "../database";
 
 export type Plant = {
-  id: number;
-  name: string;
-  type: string;
-  weight: number;
-};
-
-export type PlantWithNoID = {
+  id?: number;
   name: string;
   type: string;
   weight: number;
@@ -38,7 +32,7 @@ export class RarePlantStore {
     }
   }
 
-  async create(p: PlantWithNoID): Promise<Plant> {
+  async create(p: Plant): Promise<Plant> {
     try {
       const sql =
         "INSERT INTO rare_plants (name, type, weight) VALUES ($1, $2, $3) RETURNING *";
@@ -49,6 +43,20 @@ export class RarePlantStore {
       return rare_plant;
     } catch (err) {
       throw new Error(`Cannot add new plant ${p.name}. Error: ${err}`);
+    }
+  }
+
+  async update(p: Plant): Promise<Plant> {
+    try {
+      const sql =
+        "UPDATE rare_plants SET name=($1), type=($2), weight=($3) WHERE id=($4) RETURNING *";
+      const conn = await client.connect();
+      const result = await conn.query(sql, [p.name, p.type, p.weight, p.id]);
+      const rare_plant = result.rows[0];
+      conn.release();
+      return rare_plant;
+    } catch (err) {
+      throw new Error(`Cannot update plant ${p.name}. Error: ${err}`);
     }
   }
 

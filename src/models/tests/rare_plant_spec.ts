@@ -1,5 +1,4 @@
 import { Plant, RarePlantStore } from "../rare_plant";
-//import client from "../../database";
 
 const store = new RarePlantStore();
 
@@ -57,15 +56,25 @@ describe("Rare Plant Model", () => {
     });
   });
 
+  it("update method should return the updated plant", async () => {
+    const result = await store.update({
+      id: 1,
+      name: "cactus",
+      type: "less water",
+      weight: 2,
+    });
+    console.log(result);
+    expect(result).toEqual({
+      id: 1,
+      name: "cactus",
+      type: "less water",
+      weight: 2,
+    });
+  });
+
   it("delete method should remove the selected plant", async () => {
     store.delete(1);
     const result = await store.index();
     expect(result).toEqual([]);
-    /*
-    const conn = await client.connect();
-    const sql = "TRUNCATE TABLE rare_plants RESTART IDENTITY";
-    const deleteAll = await conn.query(sql);
-    conn.release();
-    */
   });
 });
