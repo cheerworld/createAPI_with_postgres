@@ -19,6 +19,10 @@ describe("Rare Plant Model", () => {
     expect(store.delete).toBeDefined();
   });
 
+  it("should have a update method", () => {
+    expect(store.update).toBeDefined();
+  });
+
   it("create method should add a plant", async () => {
     const result = await store.create({
       name: "monstera",
