@@ -44,7 +44,7 @@ export class UserStore {
       const conn = await client.connect();
       const hash = bcrypt.hashSync(
         u.password_digest + BCRYPT_PASSWORD,
-        parseInt(SALT_ROUNDS)
+        parseInt(SALT_ROUNDS as unknown as string)
       );
       const result = await conn.query(sql, [u.username, hash]);
       const user = result.rows[0];
@@ -52,6 +52,41 @@ export class UserStore {
       return user;
     } catch (err) {
       throw new Error(`Cannot add new user ${u.username}. Error: ${err}`);
+    }
+  }
+
+  async delete(id: number): Promise<User> {
+    try {
+      const sql = "DELETE FROM users WHERE id=($1)";
+      const conn = await client.connect();
+      const result = await conn.query(sql, [id]);
+      const user = result.rows[0];
+      conn.release();
+      return user;
+    } catch (err) {
+      throw new Error(`Cannot delete user ${id}. Error: ${err}`);
+    }
+  }
+
+  async authenticate(username: string, password: string): Promise<User | null> {
+    try {
+      const conn = await client.connect();
+      const sql = "SELECT password_digest FROM users WHERE username=($1)";
+      const result = await conn.query(sql, [username]);
+
+      if (result.rows.length) {
+        const user = result.rows[0];
+
+        if (
+          bcrypt.compareSync(password + BCRYPT_PASSWORD, user.password_digest)
+        ) {
+          return user;
+        }
+      }
+
+      return null;
+    } catch (err) {
+      throw new Error(`Cannot authenticate user ${username}. Error: ${err}.`);
     }
   }
 }
