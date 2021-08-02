@@ -1,5 +1,9 @@
 import express, { Request, Response } from "express";
 import { User, UserStore } from "../models/user";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const store = new UserStore();
 
@@ -32,11 +36,15 @@ const create = async (req: Request, res: Response) => {
   };
   try {
     const newUser = await store.create(user);
-    const jsonfy = res.json(newUser);
+    const token = jwt.sign(
+      { user: newUser },
+      process.env.TOKEN_SECRET as unknown as string
+    );
+    const jsonfy = res.json(token);
     res.send(jsonfy);
   } catch (err) {
     res.status(400);
-    res.json(err);
+    res.json(err + user);
   }
 };
 
@@ -57,7 +65,12 @@ const authenticate = async (req: Request, res: Response) => {
       req.body.username,
       req.body.password_digest
     );
-    const jsonfy = res.json(authUser);
+    const token = jwt.sign(
+      { user: authUser },
+      process.env.TOKEN_SECRET as unknown as string
+    );
+
+    const jsonfy = res.json(token);
     res.send(jsonfy);
   } catch (err) {
     res.status(400);
@@ -65,11 +78,28 @@ const authenticate = async (req: Request, res: Response) => {
   }
 };
 
+const verifyAuthToken = (
+  req: Request,
+  res: Response,
+  next: express.NextFunction
+) => {
+  try {
+    const authorizationHeader = req.headers.authorization;
+    console.log(authorizationHeader);
+    const token = (authorizationHeader as string).split(" ")[1];
+    const decoded = jwt.verify(token, process.env.TOKEN_SECRET as string);
+    next();
+  } catch (error) {
+    res.status(401);
+    res.json(`Access denied, invalid token ${error}`);
+  }
+};
+
 const users_routes = (app: express.Application) => {
-  app.get("/users", index);
+  app.get("/users", verifyAuthToken, index);
   app.get("/users/:id", show);
   app.post("/users", create);
-  app.delete("/users/:id", remove);
+  app.delete("/users/:id", verifyAuthToken, remove);
   app.post("/users/authenticate", authenticate);
 };
 

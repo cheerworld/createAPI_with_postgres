@@ -1,5 +1,9 @@
 import express, { Request, Response } from "express";
 import { Plant, RarePlantStore } from "../models/rare_plant";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const store = new RarePlantStore();
 
@@ -31,6 +35,18 @@ const create = async (req: Request, res: Response) => {
     type: req.body.type,
     weight: req.body.weight,
   };
+
+  try {
+    const authorizationHeader = req.headers.authorization;
+    console.log(authorizationHeader);
+    const token = (authorizationHeader as string).split(" ")[1];
+    jwt.verify(token, process.env.TOKEN_SECRET as string);
+  } catch (err) {
+    res.status(401);
+    res.json("Access denied, invalid token");
+    return;
+  }
+
   try {
     const rare_plant = await store.create(plant);
     const jsonfy = res.json(rare_plant);
@@ -68,7 +84,24 @@ const remove = async (req: Request, res: Response) => {
     res.json(err);
   }
 };
-
+/*
+const verifyAuthToken = (
+  req: Request,
+  res: Response,
+  next: express.NextFunction
+) => {
+  try {
+    const authorizationHeader = req.headers.authorization;
+    console.log(authorizationHeader);
+    const token = (authorizationHeader as string).split(" ")[1];
+    const decoded = jwt.verify(token, process.env.TOKEN_SECRET as string);
+    next();
+  } catch (error) {
+    res.status(401);
+    res.json(`Access denied, invalid token ${error}`);
+  }
+};
+*/
 const rare_plants_routes = (app: express.Application) => {
   app.get("/rare_plants", index);
   app.get("/rare_plants/:id", show);
