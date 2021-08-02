@@ -77,7 +77,7 @@ const verifyAuthToken = (
     const authorizationHeader = req.headers.authorization;
     console.log(authorizationHeader);
     const token = (authorizationHeader as string).split(" ")[1];
-    const decoded = jwt.verify(token, process.env.TOKEN_SECRET as string);
+    const decoded = jwt.verify(token, process.env.TOKEN_SECRET as jwt.Secret);
     next();
   } catch (error) {
     res.status(401);

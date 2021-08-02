@@ -16,7 +16,6 @@ const index = async (_req: Request, res: Response) => {
   try {
     const users = await store.index();
     res.json(users);
-    //res.end();
   } catch (err) {
     res.status(400);
     res.json(err);
@@ -42,7 +41,7 @@ const create = async (req: Request, res: Response) => {
     const newUser = await store.create(user);
     const token = jwt.sign(
       { user: newUser },
-      process.env.TOKEN_SECRET as unknown as string
+      process.env.TOKEN_SECRET as jwt.Secret
     );
     res.json(token);
   } catch (err) {
@@ -61,7 +60,7 @@ const update = async (req: Request, res: Response) => {
   try {
     const authorizationHeader = req.headers.authorization;
     const token = (authorizationHeader as string).split(" ")[1];
-    const decoded = jwt.verify(token, process.env.TOKEN_SECRET as string);
+    const decoded = jwt.verify(token, process.env.TOKEN_SECRET as jwt.Secret);
     console.log(decoded);
     const id = (decoded as TokenInterface).user.id;
     console.log(id);
@@ -75,11 +74,10 @@ const update = async (req: Request, res: Response) => {
   }
 
   try {
-    await store.delete(parseInt(req.params.id));
-    const updated = await store.create(user);
+    const updated = await store.update(user);
     const token = jwt.sign(
       { user: updated },
-      process.env.TOKEN_SECRET as unknown as string
+      process.env.TOKEN_SECRET as jwt.Secret
     );
     res.json(token);
   } catch (err) {
@@ -106,7 +104,7 @@ const authenticate = async (req: Request, res: Response) => {
     );
     const token = jwt.sign(
       { user: authUser },
-      process.env.TOKEN_SECRET as unknown as string
+      process.env.TOKEN_SECRET as jwt.Secret
     );
 
     res.json(token);
@@ -125,7 +123,7 @@ const verifyAuthToken = (
     const authorizationHeader = req.headers.authorization;
     //console.log(authorizationHeader);
     const token = (authorizationHeader as string).split(" ")[1];
-    const decoded = jwt.verify(token, process.env.TOKEN_SECRET as string);
+    const decoded = jwt.verify(token, process.env.TOKEN_SECRET as jwt.Secret);
     next();
   } catch (error) {
     res.status(401);
