@@ -58,22 +58,6 @@ const update = async (req: Request, res: Response) => {
   };
 
   try {
-    const authorizationHeader = req.headers.authorization;
-    const token = (authorizationHeader as string).split(" ")[1];
-    const decoded = jwt.verify(token, process.env.TOKEN_SECRET as jwt.Secret);
-    console.log(decoded);
-    const id = (decoded as TokenInterface).user.id;
-    console.log(id);
-    if (id !== user.id) {
-      throw new Error("User id does not match!");
-    }
-  } catch (err) {
-    res.status(401);
-    res.json(err);
-    return;
-  }
-
-  try {
     const updated = await store.update(user);
     const token = jwt.sign(
       { user: updated },
@@ -114,6 +98,29 @@ const authenticate = async (req: Request, res: Response) => {
   }
 };
 
+const verifyUserId = (
+  req: Request,
+  res: Response,
+  next: express.NextFunction
+) => {
+  try {
+    const authorizationHeader = req.headers.authorization;
+    const token = (authorizationHeader as string).split(" ")[1];
+    const decoded = jwt.verify(token, process.env.TOKEN_SECRET as jwt.Secret);
+    console.log(decoded);
+    const id = (decoded as TokenInterface).user.id;
+    console.log(id);
+    if (id !== parseInt(req.params.id)) {
+      throw new Error("User id does not match!");
+    }
+    next();
+  } catch (err) {
+    res.status(401);
+    res.json(err);
+    return;
+  }
+};
+
 const verifyAuthToken = (
   req: Request,
   res: Response,
@@ -136,8 +143,8 @@ const users_routes = (app: express.Application) => {
   app.get("/users", verifyAuthToken, index);
   app.get("/users/:id", show);
   app.post("/users", create);
-  app.put("/users/:id", update);
-  app.delete("/users/:id", verifyAuthToken, remove);
+  app.put("/users/:id", verifyUserId, update);
+  app.delete("/users/:id", verifyUserId, remove);
   app.post("/users/authenticate", authenticate);
 };
 
