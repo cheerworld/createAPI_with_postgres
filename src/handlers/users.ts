@@ -5,6 +5,11 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+interface TokenInterface {
+  user: User;
+  iat: number;
+}
+
 const store = new UserStore();
 
 const index = async (_req: Request, res: Response) => {
@@ -57,11 +62,12 @@ const update = async (req: Request, res: Response) => {
     const authorizationHeader = req.headers.authorization;
     const token = (authorizationHeader as string).split(" ")[1];
     const decoded = jwt.verify(token, process.env.TOKEN_SECRET as string);
-    console.log(decoded.id);
-    /*if (decoded.id !== user.id) {
+    console.log(decoded);
+    const id = (decoded as TokenInterface).user.id;
+    console.log(id);
+    if (id !== user.id) {
       throw new Error("User id does not match!");
     }
-    */
   } catch (err) {
     res.status(401);
     res.json(err);
@@ -69,8 +75,13 @@ const update = async (req: Request, res: Response) => {
   }
 
   try {
-    const updated = await store.update(user);
-    res.json(updated);
+    await store.delete(parseInt(req.params.id));
+    const updated = await store.create(user);
+    const token = jwt.sign(
+      { user: updated },
+      process.env.TOKEN_SECRET as unknown as string
+    );
+    res.json(token);
   } catch (err) {
     res.status(400);
     res.json(err + user);
