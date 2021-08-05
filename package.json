@@ -4,10 +4,10 @@
   "description": "",
   "main": "server.ts",
   "scripts": {
-    "start": "npm run build && node src/server.ts",
+    "start": "npm run build && node dist/server.js",
     "watch": "tsc-watch --esModuleInterop src/server.ts --outDir ./dist --onSuccess \"node ./dist/server.js\"",
-    "migrate": "db-migrate --env test up && db-migrate up",
-    "test": "db-migrate --env test up && jasmine-ts && db-migrate --env test reset && db-migrate db:drop plants_dev_test",
+    "migrate": "db-migrate --env dev up",
+    "test": "db-migrate --env test up && jasmine-ts && db-migrate --env test reset",
     "build": "npx tsc"
   },
   "author": "Udacity",
@@ -31,7 +31,6 @@
     "@types/node": "^16.4.0",
     "@types/pg": "^8.6.1",
     "cross-env": "^7.0.3",
-    "jasmine-console-reporter": "^3.1.0",
     "jasmine-ts": "^0.4.0",
     "ts-node": "^10.1.0",
     "tsc-watch": "^4.2.9",
