@@ -26,7 +26,7 @@ const show = async (req: Request, res: Response) => {
 const create = async (req: Request, res: Response) => {
   const product: Product = {
     name: req.body.name,
-    price: parseInt(req.body.price),
+    price: Number(req.body.price),
   };
 
   try {
@@ -41,7 +41,7 @@ const create = async (req: Request, res: Response) => {
 const update = async (req: Request, res: Response) => {
   const product: Product = {
     name: req.body.name,
-    price: parseInt(req.body.price),
+    price: Number(req.body.price),
     id: parseInt(req.params.id),
   };
   try {

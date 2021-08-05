@@ -65,9 +65,9 @@ const remove = async (req: Request, res: Response) => {
 
 const addProduct = async (req: Request, res: Response) => {
   const add_Product: AddProduct = {
-    quantity: req.body.quantity,
+    quantity: parseInt(req.body.quantity),
     order_id: parseInt(req.params.id),
-    product_id: req.body.product_id,
+    product_id: parseInt(req.body.product_id),
   };
 
   try {
