@@ -56,6 +56,23 @@ export class OrderStore {
 
   async addProduct(a: AddProduct): Promise<AddProduct> {
     try {
+      const order_sql = "SELECT * FROM orders WHERE id=($1)";
+      const conn = await client.connect();
+      const result = await conn.query(order_sql, [a.order_id]);
+
+      const order = result.rows[0];
+
+      if (order.status !== "active") {
+        throw new Error(
+          `Cannot add product ${a.product_id} to order ${a.order_id} because order status is ${order.status}`
+        );
+      }
+      conn.release();
+    } catch (err) {
+      throw new Error(`${err}`);
+    }
+
+    try {
       const sql =
         "INSERT INTO order_products (quantity, order_id, product_id) VALUES ($1, $2, $3) RETURNING *";
       const conn = await client.connect();
