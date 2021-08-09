@@ -3,6 +3,7 @@ import rare_plants_routes from "./handlers/rare_plants";
 import users_routes from "./handlers/users";
 import order_routes from "./handlers/orders";
 import product_routes from "./handlers/products";
+import dashboard_routes from "./handlers/dashboards";
 
 const app: express.Application = express();
 const address: string = "0.0.0.0:3000";
@@ -19,6 +20,7 @@ rare_plants_routes(app);
 users_routes(app);
 order_routes(app);
 product_routes(app);
+dashboard_routes(app);
 
 app.listen(3000, function () {
   console.log(`starting app on: ${address}`);
