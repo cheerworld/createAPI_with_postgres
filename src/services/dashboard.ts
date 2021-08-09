@@ -22,7 +22,7 @@ export class DashboardQueries {
       throw new Error(`Unable to get products and orders: ${err}`);
     }
   }
-
+  //Get users that have been included in orders
   async usersWithOrders(): Promise<{ username: string; status: string }[]> {
     try {
       const conn = await client.connect();
@@ -35,6 +35,21 @@ export class DashboardQueries {
       return result.rows;
     } catch (err) {
       throw new Error(`Unable to get users with orders: ${err}`);
+    }
+  }
+
+  //Get 5 most expensive products in products
+  async fiveMostExpensive(): Promise<{ name: string; price: number }[]> {
+    try {
+      const conn = await client.connect();
+      const sql =
+        "SELECT name, price FROM products ORDER BY price DESC LIMIT 5";
+      const result = await conn.query(sql);
+      conn.release();
+
+      return result.rows;
+    } catch (err) {
+      throw new Error(`Unable to get products by price: ${err}.`);
     }
   }
 }
