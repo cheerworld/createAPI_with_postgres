@@ -22,4 +22,19 @@ export class DashboardQueries {
       throw new Error(`Unable to get products and orders: ${err}`);
     }
   }
+
+  async usersWithOrders(): Promise<{ username: string; status: string }[]> {
+    try {
+      const conn = await client.connect();
+      const sql =
+        "SELECT username, status FROM users INNER JOIN orders ON users.id=orders.user_id";
+      const result = await conn.query(sql);
+
+      conn.release();
+
+      return result.rows;
+    } catch (err) {
+      throw new Error(`Unable to get users with orders: ${err}`);
+    }
+  }
 }
